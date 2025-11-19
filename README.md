@@ -101,11 +101,4 @@ stream-hub/
 ├── api-design.md
 └── sequence-diagrams.md
 
-// DB manual check
-docker exec -it streamhub-postgres psql -U streamhub_user -d streamhub
-docker exec -t streamhub-postgres pg_dump -U streamhub_user streamhub > backup.sql
 
-
-//after clone
-docker compose up -d
-docker exec -i streamhub-db psql -U streamhub_user streamhub < backup.sql

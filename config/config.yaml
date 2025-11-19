@@ -2,7 +2,7 @@
 app:
   name: stream-hub
   version: 1.0.0
-  environment: development  # development, staging, production
+  environment: development # development, staging, production
 
 # Database Configuration
 database:
@@ -38,24 +38,24 @@ minio:
 services:
   auth:
     port: 50051
-    name: auth-service
+    host: auth-service
   file:
     port: 50052
-    name: file-service
+    v: file-service
   chat:
     port: 50053
-    name: chat-service
+    host: chat-service
   notification:
     port: 50054
-    name: notification-service
+    host: notification-service
   gateway:
     port: 8080
-    name: api-gateway
+    host: api-gateway
 
 # Logging Configuration
 logging:
-  level: info  # debug, info, warn, error
-  format: json  # json or console
+  level: info # debug, info, warn, error
+  format: json # json or console
   output: stdout
 
 # Server Configuration
@@ -64,5 +64,3 @@ server:
   write_timeout: 15s
   idle_timeout: 60s
   shutdown_timeout: 30s
-
-

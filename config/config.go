@@ -2,18 +2,19 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	App        AppConfig        `mapstructure:"app"`
-	Database   DatabaseConfig   `mapstructure:"database"`
-	JWT        JWTConfig        `mapstructure:"jwt"`
-	MinIO      MinioConfig      `mapstructure:"minio"`
-	Services   ServicesConfig   `mapstructure:"services"`
-	Logging    LoggingConfig    `mapstructure:"logging"`
-	Server     ServerConfig     `mapstructure:"server"`
+	App      AppConfig      `mapstructure:"app"`
+	Database DatabaseConfig `mapstructure:"database"`
+	JWT      JWTConfig      `mapstructure:"jwt"`
+	MinIO    MinioConfig    `mapstructure:"minio"`
+	Services ServicesConfig `mapstructure:"services"`
+	Logging  LoggingConfig  `mapstructure:"logging"`
+	Server   ServerConfig   `mapstructure:"server"`
 }
 
 type AppConfig struct {
@@ -41,9 +42,9 @@ type DBPoolConfig struct {
 }
 
 type JWTConfig struct {
-	Secret string `mapstructure:"secret"`
-	Expiry string `mapstructure:"expiry"`
-	Issuer string `mapstructure:"issuer"`
+	Secret string        `mapstructure:"secret"`
+	Expiry time.Duration `mapstructure:"expiry"`
+	Issuer string        `mapstructure:"issuer"`
 }
 
 type MinioConfig struct {
@@ -64,8 +65,8 @@ type ServicesConfig struct {
 }
 
 type ServiceConfig struct {
-	Port int    `mapstructure:"port"`
-	Name string `mapstructure:"name"`
+	Port string `mapstructure:"port"`
+	Host string `mapstructure:"host"`
 }
 
 type LoggingConfig struct {

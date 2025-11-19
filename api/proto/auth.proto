@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "./api/authpb";
+
+// User Model
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;     // user / admin
+  string created_at = 5;
+}
+
+// Register
+message RegisterRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterResponse {
+  string id = 1;
+  string message = 2;
+}
+
+// Login
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string id = 1;
+}
+
+// FindUserByEmail
+message FindByEmailRequest {
+  string email = 1;
+}
+
+message FindUserResponse {
+  User user = 1;
+}
+
+// FindUserByID
+message FindByIdRequest {
+  string id = 1;
+}
+
+// Reuse FindUserResponse
+
+// FindAllUsers (Admin Only)
+message Empty {}
+
+message FindAllUsersResponse {
+  repeated User users = 1;
+}
+
+// -----------------------------
+// Auth Service Definition
+// -----------------------------
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  rpc FindByEmail(FindByEmailRequest) returns (FindUserResponse);
+  rpc FindById(FindByIdRequest) returns (FindUserResponse);
+
+  rpc FindUsers(Empty) returns (FindAllUsersResponse);
+}
