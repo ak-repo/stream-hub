@@ -15,6 +15,7 @@ type Config struct {
 	Services ServicesConfig `mapstructure:"services"`
 	Logging  LoggingConfig  `mapstructure:"logging"`
 	Server   ServerConfig   `mapstructure:"server"`
+	SendGrid SendGrid       `mapstructure:"sendgrid"`
 }
 
 type AppConfig struct {
@@ -80,6 +81,11 @@ type ServerConfig struct {
 	WriteTimeout    string `mapstructure:"write_timeout"`
 	IdleTimeout     string `mapstructure:"idle_timeout"`
 	ShutdownTimeout string `mapstructure:"shutdown_timeout"`
+}
+
+type SendGrid struct {
+	Key        string `mapstructure:"api_key"`
+	TemplateId string `mapstructure:"template_id"`
 }
 
 func Load() (*Config, error) {

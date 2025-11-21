@@ -4,13 +4,16 @@ import (
 	"context"
 	"log"
 	"net"
+	"time"
 
 	"github.com/ak-repo/stream-hub/api/authpb"
 	"github.com/ak-repo/stream-hub/config"
 	"github.com/ak-repo/stream-hub/pkg/db"
+	"github.com/ak-repo/stream-hub/pkg/jwt"
 	"github.com/ak-repo/stream-hub/pkg/logger"
 	"github.com/ak-repo/stream-hub/services/auth/server"
 	"github.com/ak-repo/stream-hub/services/auth/service"
+	"github.com/ak-repo/stream-hub/services/common/interceptors"
 	"github.com/ak-repo/stream-hub/services/common/repo"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -33,8 +36,12 @@ func main() {
 	defer pgDB.Close()
 	commonRepo := repo.NewCommonRepository(pgDB)
 
+	// jwt manager
+	tokenExpiry := 10 * time.Minute
+	jwtMan := jwt.NewJWTManager(cfg.JWT.Secret, tokenExpiry, tokenExpiry)
+
 	service := service.NewAuthService(commonRepo)
-	server := server.NewAuthServer(service)
+	server := server.NewAuthServer(service, cfg, jwtMan)
 
 	addr := ":" + cfg.Services.Auth.Port
 	lis, err := net.Listen("tcp", addr)
@@ -42,7 +49,8 @@ func main() {
 		zlog.Fatal("listen failed", zap.Error(err))
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptors.AppErrorInterceptor()))
 
 	authpb.RegisterAuthServiceServer(grpcServer, server)
 

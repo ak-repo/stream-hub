@@ -19,25 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName   = "/auth.AuthService/Register"
-	AuthService_Login_FullMethodName      = "/auth.AuthService/Login"
-	AuthService_SendOTP_FullMethodName    = "/auth.AuthService/SendOTP"
-	AuthService_VerifyOTP_FullMethodName  = "/auth.AuthService/VerifyOTP"
-	AuthService_OAuthLogin_FullMethodName = "/auth.AuthService/OAuthLogin"
+	AuthService_SendMagicLink_FullMethodName   = "/auth.AuthService/SendMagicLink"
+	AuthService_VerifyMagicLink_FullMethodName = "/auth.AuthService/VerifyMagicLink"
+	AuthService_Register_FullMethodName        = "/auth.AuthService/Register"
+	AuthService_Login_FullMethodName           = "/auth.AuthService/Login"
+	AuthService_OAuthLogin_FullMethodName      = "/auth.AuthService/OAuthLogin"
 )
 
 // AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// -----------------------------
+// =====================================
 // Auth Service Definition
-// -----------------------------
+// =====================================
 type AuthServiceClient interface {
+	// Magic Link Authentication
+	SendMagicLink(ctx context.Context, in *SendMagicLinkRequest, opts ...grpc.CallOption) (*SendMagicLinkResponse, error)
+	VerifyMagicLink(ctx context.Context, in *VerifyMagicLinkRequest, opts ...grpc.CallOption) (*VerifyMagicLinkResponse, error)
+	// Optional
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*SendOTPResponse, error)
-	VerifyOTP(ctx context.Context, in *VerifyOTPRequest, opts ...grpc.CallOption) (*VerifyOTPResponse, error)
 	OAuthLogin(ctx context.Context, in *OAuthLoginRequest, opts ...grpc.CallOption) (*OAuthLoginResponse, error)
 }
 
@@ -47,6 +49,26 @@ type authServiceClient struct {
 
 func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
+}
+
+func (c *authServiceClient) SendMagicLink(ctx context.Context, in *SendMagicLinkRequest, opts ...grpc.CallOption) (*SendMagicLinkResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendMagicLinkResponse)
+	err := c.cc.Invoke(ctx, AuthService_SendMagicLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) VerifyMagicLink(ctx context.Context, in *VerifyMagicLinkRequest, opts ...grpc.CallOption) (*VerifyMagicLinkResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyMagicLinkResponse)
+	err := c.cc.Invoke(ctx, AuthService_VerifyMagicLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
@@ -69,26 +91,6 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*SendOTPResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SendOTPResponse)
-	err := c.cc.Invoke(ctx, AuthService_SendOTP_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) VerifyOTP(ctx context.Context, in *VerifyOTPRequest, opts ...grpc.CallOption) (*VerifyOTPResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(VerifyOTPResponse)
-	err := c.cc.Invoke(ctx, AuthService_VerifyOTP_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *authServiceClient) OAuthLogin(ctx context.Context, in *OAuthLoginRequest, opts ...grpc.CallOption) (*OAuthLoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OAuthLoginResponse)
@@ -103,14 +105,16 @@ func (c *authServiceClient) OAuthLogin(ctx context.Context, in *OAuthLoginReques
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
 //
-// -----------------------------
+// =====================================
 // Auth Service Definition
-// -----------------------------
+// =====================================
 type AuthServiceServer interface {
+	// Magic Link Authentication
+	SendMagicLink(context.Context, *SendMagicLinkRequest) (*SendMagicLinkResponse, error)
+	VerifyMagicLink(context.Context, *VerifyMagicLinkRequest) (*VerifyMagicLinkResponse, error)
+	// Optional
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	SendOTP(context.Context, *SendOTPRequest) (*SendOTPResponse, error)
-	VerifyOTP(context.Context, *VerifyOTPRequest) (*VerifyOTPResponse, error)
 	OAuthLogin(context.Context, *OAuthLoginRequest) (*OAuthLoginResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
@@ -122,17 +126,17 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
+func (UnimplementedAuthServiceServer) SendMagicLink(context.Context, *SendMagicLinkRequest) (*SendMagicLinkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendMagicLink not implemented")
+}
+func (UnimplementedAuthServiceServer) VerifyMagicLink(context.Context, *VerifyMagicLinkRequest) (*VerifyMagicLinkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyMagicLink not implemented")
+}
 func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
-}
-func (UnimplementedAuthServiceServer) SendOTP(context.Context, *SendOTPRequest) (*SendOTPResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
-}
-func (UnimplementedAuthServiceServer) VerifyOTP(context.Context, *VerifyOTPRequest) (*VerifyOTPResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyOTP not implemented")
 }
 func (UnimplementedAuthServiceServer) OAuthLogin(context.Context, *OAuthLoginRequest) (*OAuthLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OAuthLogin not implemented")
@@ -156,6 +160,42 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AuthService_ServiceDesc, srv)
+}
+
+func _AuthService_SendMagicLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendMagicLinkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).SendMagicLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_SendMagicLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).SendMagicLink(ctx, req.(*SendMagicLinkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_VerifyMagicLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyMagicLinkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).VerifyMagicLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_VerifyMagicLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).VerifyMagicLink(ctx, req.(*VerifyMagicLinkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -194,42 +234,6 @@ func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_SendOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendOTPRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).SendOTP(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_SendOTP_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).SendOTP(ctx, req.(*SendOTPRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_VerifyOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyOTPRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).VerifyOTP(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_VerifyOTP_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).VerifyOTP(ctx, req.(*VerifyOTPRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AuthService_OAuthLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OAuthLoginRequest)
 	if err := dec(in); err != nil {
@@ -256,20 +260,20 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "SendMagicLink",
+			Handler:    _AuthService_SendMagicLink_Handler,
+		},
+		{
+			MethodName: "VerifyMagicLink",
+			Handler:    _AuthService_VerifyMagicLink_Handler,
+		},
+		{
 			MethodName: "Register",
 			Handler:    _AuthService_Register_Handler,
 		},
 		{
 			MethodName: "Login",
 			Handler:    _AuthService_Login_Handler,
-		},
-		{
-			MethodName: "SendOTP",
-			Handler:    _AuthService_SendOTP_Handler,
-		},
-		{
-			MethodName: "VerifyOTP",
-			Handler:    _AuthService_VerifyOTP_Handler,
 		},
 		{
 			MethodName: "OAuthLogin",

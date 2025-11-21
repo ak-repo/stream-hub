@@ -1,9 +1,9 @@
 package jwt
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/ak-repo/stream-hub/pkg/errors"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -56,7 +56,7 @@ func (m *JWTManager) ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		// Validate signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.ErrInvalidToken
+			return nil, fmt.Errorf("invalid jwt method")
 		}
 		return m.secretKey, nil
 	})
@@ -66,12 +66,12 @@ func (m *JWTManager) ValidateToken(tokenString string) (*Claims, error) {
 	}
 
 	if !token.Valid {
-		return nil, errors.ErrInvalidToken
+		return nil, fmt.Errorf("token not valid")
 	}
 
 	// Check expiration
 	if claims.ExpiresAt.Time.Before(time.Now()) {
-		return nil, errors.ErrExpiredToken
+		return nil, fmt.Errorf("token expired")
 	}
 
 	return claims, nil

@@ -31,5 +31,7 @@ func authRoutes(r fiber.Router, zlog *zap.Logger, cfg *config.Config, authClient
 
 	r.Post("/login", auth.Login)
 	r.Post("/register", auth.Register)
+	r.Post("/verify-gen", auth.SendMagicLink)
+	r.Get("/verify-link", auth.VerifyMagicLink)
 
 }

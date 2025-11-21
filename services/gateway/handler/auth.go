@@ -21,65 +21,82 @@ func NewAuthHandler(cli authpb.AuthServiceClient, log *zap.Logger, jwt *jwt.JWTM
 	return &AuthHandler{client: cli, zlog: log, jwtManager: jwt}
 }
 
+func withGRPCTimeout() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 3*time.Second)
+}
+
 func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
-	req := new(authpb.RegisterRequest)
+	req := &authpb.RegisterRequest{}
 	if err := ctx.BodyParser(req); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid JSON"})
+		return ctx.Status(400).JSON(fiber.Map{"error": "invalid input"})
 	}
-
-	// Timeout-based context
-	grpcCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	gc, cancel := withGRPCTimeout()
 	defer cancel()
-
-	resp, err := h.client.Register(grpcCtx, req)
+	resp, err := h.client.Register(gc, req)
 	if err != nil {
-		h.zlog.Error("gRPC register failed", zap.Error(err))
-		return ctx.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": "auth service unavailable"})
+		h.zlog.Error("grpc register", zap.Error(err))
+		code, body := errors.GRPCToFiber(err)
+		return ctx.Status(code).JSON(body)
 	}
-
-	h.zlog.Info("login request", zap.String("email", req.Email))
-
 	return ctx.JSON(resp)
 }
 
 func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
-	h.zlog.Info("login called")
-	req := new(authpb.LoginRequest)
-
+	req := &authpb.LoginRequest{}
 	if err := ctx.BodyParser(req); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid JSON"})
+		return ctx.Status(400).JSON(fiber.Map{"error": "invalid input"})
 	}
-
-	// Timeout-based context
-	grpcCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	gc, cancel := withGRPCTimeout()
 	defer cancel()
-
-	resp, err := h.client.Login(grpcCtx, req)
+	resp, err := h.client.Login(gc, req)
 	if err != nil {
-		h.zlog.Error("gRPC login failed", zap.Error(err))
-		return ctx.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": err.Error()})
+		h.zlog.Error("grpc login", zap.Error(err))
+		code, body := errors.GRPCToFiber(err)
+		return ctx.Status(code).JSON(body)
 	}
-
-	h.zlog.Info("login request", zap.String("email", req.Email))
-
-	// JWT
-	accessToken, aExp, err := h.jwtManager.GenerateAccessToken(resp.User.Id, resp.User.Email)
+	access, aExp, err := h.jwtManager.GenerateAccessToken(resp.User.Id, resp.User.Email)
 	if err != nil {
-
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": errors.ErrTokenGenerate.Error()})
+		return ctx.Status(500).JSON(fiber.Map{"error": "token creation failed"})
 	}
-	refrToken, rExp, err := h.jwtManager.GenerateRefreshToken(resp.User.Id)
+	refresh, rExp, err := h.jwtManager.GenerateRefreshToken(resp.User.Id)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": errors.ErrTokenGenerate.Error()})
+		return ctx.Status(500).JSON(fiber.Map{"error": "token creation failed"})
 	}
+	ctx.Cookie(&fiber.Cookie{Name: "refresh", Value: refresh, Path: "/", Expires: rExp, HTTPOnly: true})
+	return ctx.JSON(fiber.Map{"message": "login successful", "token": access, "exp": aExp})
+}
 
-	ctx.Cookie(&fiber.Cookie{
-		Name:    "refresh",
-		Value:   refrToken,
-		Path:    "/",
-		Domain:  "",
-		Expires: rExp,
-	})
+func (h *AuthHandler) SendMagicLink(ctx *fiber.Ctx) error {
+	req := &authpb.SendMagicLinkRequest{}
+	if err := ctx.BodyParser(req); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{"error": "invalid input"})
+	}
+	gc, cancel := withGRPCTimeout()
+	defer cancel()
+	resp, err := h.client.SendMagicLink(gc, req)
+	if err != nil {
+		h.zlog.Error("grpc magic link", zap.Error(err))
+		code, body := errors.GRPCToFiber(err)
+		return ctx.Status(code).JSON(body)
+	}
+	return ctx.JSON(resp)
+}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "login successful", "token": accessToken, "exp": aExp})
+func (h *AuthHandler) VerifyMagicLink(ctx *fiber.Ctx) error {
+	req := &authpb.VerifyMagicLinkRequest{
+		Email: ctx.Query("email"),
+		Token: ctx.Query("token"),
+	}
+	if req.Email == "" || req.Token == "" {
+		return ctx.Status(400).JSON(fiber.Map{"error": "missing email or token"})
+	}
+	gc, cancel := withGRPCTimeout()
+	defer cancel()
+	resp, err := h.client.VerifyMagicLink(gc, req)
+	if err != nil {
+		h.zlog.Error("grpc verify magic link", zap.Error(err))
+		code, body := errors.GRPCToFiber(err)
+		return ctx.Status(code).JSON(body)
+	}
+	return ctx.JSON(resp)
 }

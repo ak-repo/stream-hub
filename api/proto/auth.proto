@@ -9,6 +9,7 @@ message AuthUser {
   string email = 2;
   string role = 3; // user / admin
   bool email_verified = 4;
+  string created_at = 5;
 }
 
 // Send Magic Link (Email Verification / Login)
@@ -18,17 +19,19 @@ message SendMagicLinkRequest {
 
 message SendMagicLinkResponse {
   string message = 1;
+  string magicLink = 2;
+  string expire = 3;
 }
 
 // Verify Magic Link Token
 message VerifyMagicLinkRequest {
   string token = 1;
+  string email = 2;
+
 }
 
 message VerifyMagicLinkResponse {
   AuthUser user = 1;
-  string access_token = 2;
-  string refresh_token = 3;
 }
 
 // Optional: Normal Registration (Username & Password)
@@ -39,7 +42,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  AuthUser user = 1;
+  bool link_send = 1;
   string message = 2;
 }
 
@@ -51,8 +54,6 @@ message LoginRequest {
 
 message LoginResponse {
   AuthUser user = 1;
-  string access_token = 2;
-  string refresh_token = 3;
 }
 
 // =====================================
