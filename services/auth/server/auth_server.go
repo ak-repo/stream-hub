@@ -16,32 +16,41 @@ func NewAuthServer(svc *service.AuthService) *AuthServer {
 	return &AuthServer{service: svc}
 }
 
-// Login
-func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*authpb.LoginResponse, error) {
-
-	return &authpb.LoginResponse{Id: "100"}, nil
-}
-
 // Register
 func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 
-	id, err := s.service.Register(ctx, req.Name, req.Email, req.Password)
+	// Call the service to register the user
+	user, err := s.service.Register(ctx, req.Username, req.Email, req.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	return &authpb.RegisterResponse{Id: id}, nil
+	res := &authpb.AuthUser{
+		Id:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
+	}
+
+	return &authpb.RegisterResponse{
+		User:    res,
+		Message: "User registered successfully",
+	}, nil
 }
-func (s *AuthServer) FindByEmail(ctx context.Context, req *authpb.FindByEmailRequest) (*authpb.FindUserResponse, error) {
 
-	return &authpb.FindUserResponse{}, nil
-}
-func (s *AuthServer) FIndById(ctx context.Context, req *authpb.FindByIdRequest) (*authpb.FindUserResponse, error) {
+// Login
+func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*authpb.LoginResponse, error) {
 
-	return &authpb.FindUserResponse{}, nil
-}
+	user, err := s.service.Login(ctx, req.Email, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	res := &authpb.AuthUser{
+		Id:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
+	}
 
-func (s *AuthServer) FindUsers(ctx context.Context, req *authpb.Empty) (*authpb.FindAllUsersResponse, error) {
-
-	return &authpb.FindAllUsersResponse{}, nil
+	return &authpb.LoginResponse{
+		User: res,
+	}, nil
 }

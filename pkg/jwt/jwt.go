@@ -19,6 +19,14 @@ type JWTManager struct {
 	refreshTokenTTL time.Duration
 }
 
+func NewJWTManager(secret string, accessExp, refreshExp time.Duration) *JWTManager {
+	return &JWTManager{
+		secretKey:       []byte(secret),
+		accessTokenTTL:  accessExp,
+		refreshTokenTTL: refreshExp,
+	}
+}
+
 // GenerateAccessToken creates a new JWT access token
 func (m *JWTManager) GenerateAccessToken(userID, email string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(m.accessTokenTTL)

@@ -1,16 +1,39 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+Generate a **minimal, modern, responsive React page** using TailwindCSS with the following color palette:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+Primary: #3B82F6
+Secondary: #1E293B
+Background: #F8FAFC
+Dark Mode Background: #0F172A
+Accent: #14B8A6
+```
 
-## React Compiler
+**Requirements:**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Use clean, modern layout with good spacing
+* Use Tailwind best practices
+* Use the color palette for backgrounds, text, buttons, and accents
+* Responsive for mobile + desktop
+* Use semantic HTML
+* Minimal animations (optional)
+* No external UI libraries (shadcn optional)
+* Produce only the React component code (JSX)
 
-## Expanding the ESLint configuration
+**Page Type:**
+👉 [Describe the page you want: Home Page / Dashboard / Profile / File Manager / Chat / Notifications / Landing Page / Login / etc]
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+# Example Usage
+
+“Generate a modern minimal **profile page** using that prompt.”
+
+“Generate a **file upload page** using the same styling.”
+
+“Generate a **chat interface** using the prompt.”
+
+---
+
+If you want, I can also create a more **advanced version** of this prompt for AI agents, auto-generation engines, or multi-file project generation.

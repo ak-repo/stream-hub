@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName    = "/auth.AuthService/Register"
-	AuthService_Login_FullMethodName       = "/auth.AuthService/Login"
-	AuthService_FindByEmail_FullMethodName = "/auth.AuthService/FindByEmail"
-	AuthService_FindById_FullMethodName    = "/auth.AuthService/FindById"
-	AuthService_FindUsers_FullMethodName   = "/auth.AuthService/FindUsers"
+	AuthService_Register_FullMethodName   = "/auth.AuthService/Register"
+	AuthService_Login_FullMethodName      = "/auth.AuthService/Login"
+	AuthService_SendOTP_FullMethodName    = "/auth.AuthService/SendOTP"
+	AuthService_VerifyOTP_FullMethodName  = "/auth.AuthService/VerifyOTP"
+	AuthService_OAuthLogin_FullMethodName = "/auth.AuthService/OAuthLogin"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -36,9 +36,9 @@ const (
 type AuthServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	FindByEmail(ctx context.Context, in *FindByEmailRequest, opts ...grpc.CallOption) (*FindUserResponse, error)
-	FindById(ctx context.Context, in *FindByIdRequest, opts ...grpc.CallOption) (*FindUserResponse, error)
-	FindUsers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*FindAllUsersResponse, error)
+	SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*SendOTPResponse, error)
+	VerifyOTP(ctx context.Context, in *VerifyOTPRequest, opts ...grpc.CallOption) (*VerifyOTPResponse, error)
+	OAuthLogin(ctx context.Context, in *OAuthLoginRequest, opts ...grpc.CallOption) (*OAuthLoginResponse, error)
 }
 
 type authServiceClient struct {
@@ -69,30 +69,30 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) FindByEmail(ctx context.Context, in *FindByEmailRequest, opts ...grpc.CallOption) (*FindUserResponse, error) {
+func (c *authServiceClient) SendOTP(ctx context.Context, in *SendOTPRequest, opts ...grpc.CallOption) (*SendOTPResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FindUserResponse)
-	err := c.cc.Invoke(ctx, AuthService_FindByEmail_FullMethodName, in, out, cOpts...)
+	out := new(SendOTPResponse)
+	err := c.cc.Invoke(ctx, AuthService_SendOTP_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) FindById(ctx context.Context, in *FindByIdRequest, opts ...grpc.CallOption) (*FindUserResponse, error) {
+func (c *authServiceClient) VerifyOTP(ctx context.Context, in *VerifyOTPRequest, opts ...grpc.CallOption) (*VerifyOTPResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FindUserResponse)
-	err := c.cc.Invoke(ctx, AuthService_FindById_FullMethodName, in, out, cOpts...)
+	out := new(VerifyOTPResponse)
+	err := c.cc.Invoke(ctx, AuthService_VerifyOTP_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) FindUsers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*FindAllUsersResponse, error) {
+func (c *authServiceClient) OAuthLogin(ctx context.Context, in *OAuthLoginRequest, opts ...grpc.CallOption) (*OAuthLoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FindAllUsersResponse)
-	err := c.cc.Invoke(ctx, AuthService_FindUsers_FullMethodName, in, out, cOpts...)
+	out := new(OAuthLoginResponse)
+	err := c.cc.Invoke(ctx, AuthService_OAuthLogin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +109,9 @@ func (c *authServiceClient) FindUsers(ctx context.Context, in *Empty, opts ...gr
 type AuthServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	FindByEmail(context.Context, *FindByEmailRequest) (*FindUserResponse, error)
-	FindById(context.Context, *FindByIdRequest) (*FindUserResponse, error)
-	FindUsers(context.Context, *Empty) (*FindAllUsersResponse, error)
+	SendOTP(context.Context, *SendOTPRequest) (*SendOTPResponse, error)
+	VerifyOTP(context.Context, *VerifyOTPRequest) (*VerifyOTPResponse, error)
+	OAuthLogin(context.Context, *OAuthLoginRequest) (*OAuthLoginResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -128,14 +128,14 @@ func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest
 func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) FindByEmail(context.Context, *FindByEmailRequest) (*FindUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindByEmail not implemented")
+func (UnimplementedAuthServiceServer) SendOTP(context.Context, *SendOTPRequest) (*SendOTPResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
 }
-func (UnimplementedAuthServiceServer) FindById(context.Context, *FindByIdRequest) (*FindUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindById not implemented")
+func (UnimplementedAuthServiceServer) VerifyOTP(context.Context, *VerifyOTPRequest) (*VerifyOTPResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyOTP not implemented")
 }
-func (UnimplementedAuthServiceServer) FindUsers(context.Context, *Empty) (*FindAllUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindUsers not implemented")
+func (UnimplementedAuthServiceServer) OAuthLogin(context.Context, *OAuthLoginRequest) (*OAuthLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OAuthLogin not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -194,56 +194,56 @@ func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_FindByEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindByEmailRequest)
+func _AuthService_SendOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendOTPRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).FindByEmail(ctx, in)
+		return srv.(AuthServiceServer).SendOTP(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_FindByEmail_FullMethodName,
+		FullMethod: AuthService_SendOTP_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).FindByEmail(ctx, req.(*FindByEmailRequest))
+		return srv.(AuthServiceServer).SendOTP(ctx, req.(*SendOTPRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_FindById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindByIdRequest)
+func _AuthService_VerifyOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyOTPRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).FindById(ctx, in)
+		return srv.(AuthServiceServer).VerifyOTP(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_FindById_FullMethodName,
+		FullMethod: AuthService_VerifyOTP_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).FindById(ctx, req.(*FindByIdRequest))
+		return srv.(AuthServiceServer).VerifyOTP(ctx, req.(*VerifyOTPRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_FindUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+func _AuthService_OAuthLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OAuthLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).FindUsers(ctx, in)
+		return srv.(AuthServiceServer).OAuthLogin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_FindUsers_FullMethodName,
+		FullMethod: AuthService_OAuthLogin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).FindUsers(ctx, req.(*Empty))
+		return srv.(AuthServiceServer).OAuthLogin(ctx, req.(*OAuthLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -264,16 +264,16 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_Login_Handler,
 		},
 		{
-			MethodName: "FindByEmail",
-			Handler:    _AuthService_FindByEmail_Handler,
+			MethodName: "SendOTP",
+			Handler:    _AuthService_SendOTP_Handler,
 		},
 		{
-			MethodName: "FindById",
-			Handler:    _AuthService_FindById_Handler,
+			MethodName: "VerifyOTP",
+			Handler:    _AuthService_VerifyOTP_Handler,
 		},
 		{
-			MethodName: "FindUsers",
-			Handler:    _AuthService_FindUsers_Handler,
+			MethodName: "OAuthLogin",
+			Handler:    _AuthService_OAuthLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

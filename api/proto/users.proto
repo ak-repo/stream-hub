@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package users;
+option go_package = "./api/userspb";
+
+// -----------------------------
+// User Model
+// -----------------------------
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;     // user / admin
+  string created_at = 5;
+  bool is_blocked = 6; // blocked by another user
+}
+
+// Find User
+message FindByEmailRequest {
+  string email = 1;
+}
+
+message FindByIdRequest {
+  string id = 1;
+}
+
+message FindUserResponse {
+  User user = 1;
+}
+
+// Find All Users (Admin Only)
+message Empty {}
+
+message FindAllUsersResponse {
+  repeated User users = 1;
+}
+
+// Block / Unblock User
+message BlockUserRequest {
+  string user_id = 1;      // the user who blocks
+  string target_user_id = 2; // the user being blocked
+}
+
+message BlockUserResponse {
+  string message = 1;
+}
+
+// Ban / Unban User (Admin)
+message BanUserRequest {
+  string target_user_id = 1;
+}
+
+message BanUserResponse {
+  string message = 1;
+}
+
+// -----------------------------
+// User Service Definition
+// -----------------------------
+service UserService {
+  rpc FindByEmail(FindByEmailRequest) returns (FindUserResponse);
+  rpc FindById(FindByIdRequest) returns (FindUserResponse);
+
+  rpc FindAllUsers(Empty) returns (FindAllUsersResponse);
+
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+  rpc UnblockUser(BlockUserRequest) returns (BlockUserResponse);
+
+  rpc BanUser(BanUserRequest) returns (BanUserResponse);
+  rpc UnbanUser(BanUserRequest) returns (BanUserResponse);
+}

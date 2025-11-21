@@ -4,68 +4,83 @@ package auth;
 option go_package = "./api/authpb";
 
 // User Model
-message User {
+message AuthUser {
   string id = 1;
-  string name = 2;
-  string email = 3;
-  string role = 4;     // user / admin
-  string created_at = 5;
+  string email = 2;
+  string role = 3; // user / admin
+  bool email_verified = 4;
 }
 
-// Register
+// Send Magic Link (Email Verification / Login)
+message SendMagicLinkRequest {
+  string email = 1;
+}
+
+message SendMagicLinkResponse {
+  string message = 1;
+}
+
+// Verify Magic Link Token
+message VerifyMagicLinkRequest {
+  string token = 1;
+}
+
+message VerifyMagicLinkResponse {
+  AuthUser user = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+// Optional: Normal Registration (Username & Password)
 message RegisterRequest {
-  string name = 1;
+  string username = 1;
   string email = 2;
   string password = 3;
 }
 
 message RegisterResponse {
-  string id = 1;
+  AuthUser user = 1;
   string message = 2;
 }
 
-// Login
+// Optional: Password Login (Fallback)
 message LoginRequest {
   string email = 1;
   string password = 2;
 }
 
 message LoginResponse {
-  string id = 1;
+  AuthUser user = 1;
+  string access_token = 2;
+  string refresh_token = 3;
 }
 
-// FindUserByEmail
-message FindByEmailRequest {
-  string email = 1;
+// =====================================
+// OAuth Login (Google / GitHub)
+// =====================================
+message OAuthLoginRequest {
+  string provider = 1; // google, github
+  string token = 2;
 }
 
-message FindUserResponse {
-  User user = 1;
+message OAuthLoginResponse {
+  AuthUser user = 1;
+  string access_token = 2;
+  string refresh_token = 3;
 }
 
-// FindUserByID
-message FindByIdRequest {
-  string id = 1;
-}
-
-// Reuse FindUserResponse
-
-// FindAllUsers (Admin Only)
-message Empty {}
-
-message FindAllUsersResponse {
-  repeated User users = 1;
-}
-
-// -----------------------------
+// =====================================
 // Auth Service Definition
-// -----------------------------
+// =====================================
 service AuthService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
+  
+  // Magic Link Authentication
+  rpc SendMagicLink (SendMagicLinkRequest) returns (SendMagicLinkResponse);
+  rpc VerifyMagicLink (VerifyMagicLinkRequest) returns (VerifyMagicLinkResponse);
 
-  rpc FindByEmail(FindByEmailRequest) returns (FindUserResponse);
-  rpc FindById(FindByIdRequest) returns (FindUserResponse);
+  // Optional
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
 
-  rpc FindUsers(Empty) returns (FindAllUsersResponse);
+  rpc OAuthLogin (OAuthLoginRequest) returns (OAuthLoginResponse);
 }
