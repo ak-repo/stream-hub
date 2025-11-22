@@ -25,11 +25,11 @@ func NewAuthServer(svc *service.AuthService, cfg *config.Config, jwt *jwt.JWTMan
 	return &AuthServer{service: svc, cfg: cfg, jwtManager: jwt}
 }
 
-//
-// ───────────────────────────────────────────────
-//   Register
 // ───────────────────────────────────────────────
 //
+//	Register
+//
+// ───────────────────────────────────────────────
 func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) (*authpb.RegisterResponse, error) {
 
 	err := s.service.Register(ctx, req.Username, req.Email, req.Password)
@@ -43,11 +43,11 @@ func (s *AuthServer) Register(ctx context.Context, req *authpb.RegisterRequest) 
 	}, nil
 }
 
-//
-// ───────────────────────────────────────────────
-//   Login
 // ───────────────────────────────────────────────
 //
+//	Login
+//
+// ───────────────────────────────────────────────
 func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*authpb.LoginResponse, error) {
 
 	user, err := s.service.Login(ctx, req.Email, req.Password)
@@ -65,18 +65,15 @@ func (s *AuthServer) Login(ctx context.Context, req *authpb.LoginRequest) (*auth
 	return &authpb.LoginResponse{User: res}, nil
 }
 
-//
-//   Send Magic Link
-//
+// Send Magic Link
 func (s *AuthServer) SendMagicLink(ctx context.Context, req *authpb.SendMagicLinkRequest) (*authpb.SendMagicLinkResponse, error) {
 
 	token, out, err := s.jwtManager.GenerateAccessToken("0", req.Email)
 	if err != nil {
 		return nil, err // interceptor handles
 	}
-
-	magicLink := s.cfg.Services.Gateway.Host + ":" +
-		s.cfg.Services.Gateway.Port +
+	magicLink := "http://" + s.cfg.Services.Front.Host + ":" +
+		s.cfg.Services.Front.Port +
 		"/verify-link?email=" + req.Email +
 		"&token=" + token
 
@@ -97,6 +94,7 @@ func (s *AuthServer) SendMagicLink(ctx context.Context, req *authpb.SendMagicLin
 	client := sendgrid.NewSendClient(s.cfg.SendGrid.Key)
 	response, err := client.Send(message)
 
+	log.Println("sented status:", response.StatusCode)
 	if err != nil || response.StatusCode != 202 {
 		log.Println("SendGrid Error:", err)
 		return nil, errors.New(errors.CodeInternal, "failed to send email", err)
@@ -109,11 +107,11 @@ func (s *AuthServer) SendMagicLink(ctx context.Context, req *authpb.SendMagicLin
 	}, nil
 }
 
-//
-// ───────────────────────────────────────────────
-//   Verify Magic Link
 // ───────────────────────────────────────────────
 //
+//	Verify Magic Link
+//
+// ───────────────────────────────────────────────
 func (s *AuthServer) VerifyMagicLink(ctx context.Context, req *authpb.VerifyMagicLinkRequest) (*authpb.VerifyMagicLinkResponse, error) {
 
 	claims, err := s.jwtManager.ValidateToken(req.Token)

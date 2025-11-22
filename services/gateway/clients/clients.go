@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/ak-repo/stream-hub/api/authpb"
+	"github.com/ak-repo/stream-hub/api/userspb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Clients struct {
-	Auth authpb.AuthServiceClient
+	Auth  authpb.AuthServiceClient
+	Users userspb.UserServiceClient
 
 	conns []*grpc.ClientConn
 }

@@ -18,7 +18,7 @@ const handleError = (error) => {
 export const loginService = async (data) => {
   try {
     const res = await api.post("/login", data);
-    return res.data;
+    return res;
   } catch (error) {
     handleError(error);
   }
@@ -27,7 +27,35 @@ export const loginService = async (data) => {
 export const registerService = async (data) => {
   try {
     const res = await api.post("/register", data);
-    return res.data;
+    return res;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const generateLinkService = async (data) => {
+  console.log("Sending data:", data);
+  try {
+    const res = await api.post(
+      "/verify-gen",
+      { email: data },
+      {
+        headers: {
+          "Content-Type": "application/json", // ensure server parses JSON
+        },
+      }
+    );
+    return res;
+  } catch (error) {
+    console.error("Error generating link:", error);
+    handleError(error); // custom error handler
+  }
+};
+export const verifyLinkService = async (email, token) => {
+  try {
+    const res = await api.get(`/verify-link?email=${email}&token=${token}`);
+
+    return res;
   } catch (error) {
     handleError(error);
   }
@@ -39,7 +67,7 @@ export const registerService = async (data) => {
 export const changePasswordService = async (data) => {
   try {
     const res = await api.post("/auth/password-change", data);
-    return res.data;
+    return res;
   } catch (error) {
     handleError(error);
   }
@@ -48,7 +76,7 @@ export const changePasswordService = async (data) => {
 export const sendOtpService = async (data) => {
   try {
     const res = await api.post("/auth/send-otp", data);
-    return res.data;
+    return res;
   } catch (error) {
     handleError(error);
   }
@@ -57,7 +85,7 @@ export const sendOtpService = async (data) => {
 export const verifyOtpService = async (data) => {
   try {
     const res = await api.post("/auth/verify-otp", data);
-    return res.data;
+    return res;
   } catch (error) {
     handleError(error);
   }

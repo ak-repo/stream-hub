@@ -4,13 +4,16 @@ import (
 	"log"
 
 	"github.com/ak-repo/stream-hub/api/authpb"
+	"github.com/ak-repo/stream-hub/api/userspb"
 	"github.com/ak-repo/stream-hub/config"
 	"github.com/ak-repo/stream-hub/pkg/helper"
 	"github.com/ak-repo/stream-hub/pkg/logger"
 	"github.com/ak-repo/stream-hub/services/gateway/clients"
 	"github.com/ak-repo/stream-hub/services/gateway/routes"
 	"github.com/gofiber/fiber/v2"
+	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"go.uber.org/zap"
+
 	"google.golang.org/grpc"
 )
 
@@ -30,6 +33,7 @@ func main() {
 
 	// ---- Fiber App ----
 	app := fiber.New()
+	app.Use(fiberlogger.New())
 
 	// ---- Create gRPC Client Container ----
 	clientContainer := clients.NewContainer()
@@ -40,6 +44,14 @@ func main() {
 		cfg.Services.Auth.Port,
 		func(conn *grpc.ClientConn) interface{} { return authpb.NewAuthServiceClient(conn) },
 		&clientContainer.Auth,
+	)
+
+	// Users Client
+	initClient(zlog, clientContainer,
+		cfg.Services.Users.Host,
+		cfg.Services.Users.Port,
+		func(conn *grpc.ClientConn) interface{} { return userspb.NewUserServiceClient(conn) },
+		&clientContainer.Users,
 	)
 
 	// Clean up gRPC connections on exit
@@ -74,6 +86,8 @@ func initClient(
 	switch t := target.(type) {
 	case *authpb.AuthServiceClient:
 		*t = cli.(authpb.AuthServiceClient)
+	case *userspb.UserServiceClient:
+		*t = cli.(userspb.UserServiceClient)
 	default:
 		zlog.Fatal("unsupported client type")
 	}

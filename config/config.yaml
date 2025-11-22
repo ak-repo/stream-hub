@@ -48,9 +48,15 @@ services:
   notification:
     port: 50054
     host: notification-service
+  users:
+    port: 50055
+    host: users-service
   gateway:
     port: 8080
     host: api-gateway
+  front:
+    host: localhost
+    port: 5173
 
 # Logging Configuration
 logging:

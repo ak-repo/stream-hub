@@ -22,8 +22,8 @@ export default api;
 // for accessing data
 api.interceptors.response.use(
   (response) => {
-    if (response.data && response.data.data) {
-      response.data = response.data.data;
+    if (response.data) {
+      response = response.data;
     }
     return response;
   },

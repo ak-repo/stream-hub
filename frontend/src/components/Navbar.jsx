@@ -1,78 +1,34 @@
-import { useNavigate } from "react-router-dom";
-import Logo from "../components/Logo";
-import { useAuth } from "../context/context";
+import React, { useState } from "react";
+import { FileText, MessageSquare, Bell, User } from "lucide-react";
 
-function Navbar() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+export default function BottomNavigation() {
+  const [activePath, setActivePath] = useState("/files");
+
+  const navItems = [
+    { path: "/files", icon: FileText, label: "Files" },
+    { path: "/chat", icon: MessageSquare, label: "Chat" },
+    { path: "/notifications", icon: Bell, label: "Notifications" },
+    { path: "/profile", icon: User, label: "Profile" },
+  ];
+
   return (
-    <div>
-      <nav className="bg-emerald-500 shadow-lg border-b border-emerald-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Logo />
-            <div className="hidden md:flex items-center space-x-8">
-              <p
-                onClick={() => navigate("/")}
-                className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 cursor-pointer"
-              >
-                Home
-              </p>
-              <p
-                onClick={() => navigate("/products")}
-                className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 cursor-pointer"
-              >
-                Products
-              </p>
-              <p
-                onClick={() => navigate("/about")}
-                className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 cursor-pointer"
-              >
-                About
-              </p>
-              <p
-                onClick={() => navigate("/contact")}
-                className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 cursor-pointer"
-              >
-                Contact
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <button
-                    className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg"
-                    onClick={() => navigate("/cart")}
-                  >
-                    Cart
-                  </button>
-                  <button
-                    className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg"
-                    onClick={() => navigate("/wishlist")}
-                  >
-                    Wishlist
-                  </button>
-                  <button
-                    className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg"
-                    onClick={() => navigate("/profile")}
-                  >
-                    Profile
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => navigate("/auth")}
-                  className="text-white hover:text-emerald-100 font-medium transition-colors duration-200 bg-emerald-600 hover:bg-emerald-700 px-6 py-2 rounded-lg"
-                >
-                  Login
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-t border-slate-700 shadow-2xl">
+      <div className="flex justify-center gap-2 px-6 py-4">
+        {navItems.map(({ path, icon: Icon, label }) => (
+          <button
+            key={path}
+            onClick={() => setActivePath(path)}
+            className={`flex flex-col items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 ${
+              activePath === path
+                ? "bg-white text-slate-900 shadow-lg scale-105"
+                : "text-white hover:bg-slate-700 hover:shadow-md"
+            }`}
+          >
+            <Icon size={24} strokeWidth={2} />
+            <span className="text-xs font-bold tracking-wide">{label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
-
-export default Navbar;

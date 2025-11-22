@@ -59,10 +59,12 @@ type MinioConfig struct {
 
 type ServicesConfig struct {
 	Auth         ServiceConfig `mapstructure:"auth"`
+	Users        ServiceConfig `mapstructure:"users"`
 	File         ServiceConfig `mapstructure:"file"`
 	Chat         ServiceConfig `mapstructure:"chat"`
 	Notification ServiceConfig `mapstructure:"notification"`
 	Gateway      ServiceConfig `mapstructure:"gateway"`
+	Front        ServiceConfig `mapstructure:"front"`
 }
 
 type ServiceConfig struct {
